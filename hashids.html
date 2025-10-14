@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hashids - Tạo/giải mã</title>
+  <style>
+    :root{font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#111}
+    body{max-width:900px;margin:36px auto;padding:18px}
+    h1{font-size:20px;margin:0 0 8px}
+    p.lead{color:#444;margin-top:0}
+    .card{border:1px solid #e6e6e6;border-radius:10px;padding:16px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
+    label{display:block;margin:10px 0 6px;font-weight:600}
+    input[type=text], textarea, select{width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;font-size:14px}
+    .row{display:flex;gap:12px}
+    .row > * {flex:1}
+    button{background:#2563eb;color:#fff;border:0;padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:600}
+    button.secondary{background:#e5e7eb;color:#111}
+    .output{font-family:monospace;background:#0f172a;color:#fff;padding:10px;border-radius:8px;word-break:break-all}
+    .small{font-size:13px;color:#555}
+    .muted{color:#666;font-size:13px}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .flex{display:flex;gap:8px}
+    .chip{background:#f3f4f6;padding:6px 8px;border-radius:999px;font-size:13px}
+    .copy-btn{background:#10b981;color:white;border:0;padding:8px 10px;border-radius:8px;cursor:pointer}
+    footer{margin-top:18px;color:#666;font-size:13px}
+    .error{color:#b91c1c}
+  </style>
+</head>
+<body>
+  <h1>Hashids — Tạo &amp; giải mã (trên trình duyệt)</h1>
+  <p class="lead">Nhập số (hoặc danh sách số), đặt <em>salt</em> (bí mật) và nhận chuỗi Hashid. Bạn có thể giải mã lại chuỗi nếu cần.</p>
+
+  <div class="card">
+    <label for="numbers">Số (một hoặc nhiều, cách nhau bằng dấu phẩy)</label>
+    <input id="numbers" placeholder="VD: 123 hoặc 1,23,456" value="123">
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label for="salt">Salt (bí mật)</label>
+        <input id="salt" placeholder="Nhập salt của bạn" value="my_secret_salt">
+      </div>
+      <div>
+        <label for="minlen">Độ dài tối thiểu</label>
+        <input id="minlen" placeholder="0 = auto" value="6">
+      </div>
+    </div>
+
+    <label for="alphabet">Alphabet (tùy chọn — để trống dùng mặc định)</label>
+    <input id="alphabet" placeholder="VD: abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890">
+
+    <div class="controls">
+      <button id="encodeBtn">Mã hóa (Encode)</button>
+      <button id="decodeBtn" class="secondary">Giải mã (Decode)</button>
+      <div class="chip">Trình duyệt-only • Không gửi dữ liệu</div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label>Kết quả</label>
+      <div id="result" class="output">—</div>
+      <div style="margin-top:8px;display:flex;gap:8px">
+        <button id="copyResult" class="copy-btn">Sao chép</button>
+        <button id="clearBtn" class="secondary">Xóa</button>
+      </div>
+    </div>
+
+    <p class="muted" style="margin-top:10px">Ghi chú: Hashids là <strong>obfuscation</strong> (làm khó đoán) chứ không phải mã hóa an toàn như AES. Đừng dùng để bảo vệ dữ liệu cực kỳ nhạy cảm.</p>
+    <div id="error" class="error"></div>
+  </div>
+
+  <footer>Muốn file HTML để dùng offline? Lưu trang này hoặc nhấn Ctrl+S (Cmd+S).</footer>
+
+  <!-- Hashids từ CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/hashids@2.2.10/dist/hashids.min.js"></script>
+  <script>
+    // An toàn: kiểm tra xem Hashids có load không
+    const resultEl = document.getElementById('result');
+    const errEl = document.getElementById('error');
+    const numbersEl = document.getElementById('numbers');
+    const saltEl = document.getElementById('salt');
+    const minlenEl = document.getElementById('minlen');
+    const alphabetEl = document.getElementById('alphabet');
+
+    function showError(msg){ errEl.textContent = msg || ''; }
+    function showResult(txt){ resultEl.textContent = txt; }
+
+    function parseNumbers(input){
+      // Hỗ trợ: một số, hoặc nhiều số ngăn cách bằng dấu phẩy/spaces
+      if(!input) return [];
+      const parts = input.split(',').map(s=>s.trim()).filter(Boolean);
+      const nums = [];
+      for(const p of parts){
+        // nếu là chuỗi số lớn, parseInt an toàn cho 53-bit
+        if(/^-?\d+$/.test(p)){
+          const n = Number(p);
+          if(!Number.isSafeInteger(n) || n < 0){
+            throw new Error('Chỉ chấp nhận số nguyên không âm trong ví dụ này (safe integer).');
+          }
+          nums.push(n);
+        } else {
+          throw new Error('Định dạng số không hợp lệ: "' + p + '"');
+        }
+      }
+      return nums;
+    }
+
+    function makeHashids(){
+      const salt = saltEl.value || '';
+      const minlen = parseInt(minlenEl.value) || 0;
+      const alphabet = (alphabetEl.value || '').trim() || undefined;
+      // Hashids API: new Hashids(salt, minLength?, alphabet?)
+      try{
+        return new Hashids(salt, minlen, alphabet);
+      }catch(e){ throw new Error('Tạo Hashids thất bại: ' + e.message); }
+    }
+
+    document.getElementById('encodeBtn').addEventListener('click', ()=>{
+      showError('');
+      try{
+        if(typeof Hashids === 'undefined') throw new Error('Hashids library chưa load (không có kết nối Internet?)');
+        const nums = parseNumbers(numbersEl.value);
+        if(nums.length === 0) throw new Error('Vui lòng nhập ít nhất một số.');
+        const h = makeHashids();
+        const encoded = h.encode(...nums);
+        showResult(encoded || '—');
+      }catch(err){ showError(err.message); }
+    });
+
+    document.getElementById('decodeBtn').addEventListener('click', ()=>{
+      showError('');
+      try{
+        if(typeof Hashids === 'undefined') throw new Error('Hashids library chưa load (không có kết nối Internet?)');
+        const h = makeHashids();
+        const input = numbersEl.value.trim();
+        if(!input) throw new Error('Nhập chuỗi hash cần giải mã vào ô "Số".');
+        const decoded = h.decode(input);
+        if(!decoded || decoded.length === 0) showResult('Không giải mã được (kiểm tra salt/alphabet).');
+        else showResult(decoded.join(', '));
+      }catch(err){ showError(err.message); }
+    });
+
+    document.getElementById('copyResult').addEventListener('click', async ()=>{
+      const txt = resultEl.textContent || '';
+      if(!txt || txt === '—') return;
+      try{
+        await navigator.clipboard.writeText(txt);
+        showError('Đã sao chép vào clipboard.');
+        setTimeout(()=>showError(''),1500);
+      }catch(e){ showError('Không thể sao chép: ' + e.message); }
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', ()=>{
+      numbersEl.value = '';
+      showResult('—');
+      showError('');
+    });
+
+    // small helper: demo encode on load
+    window.addEventListener('load', ()=>{
+      try{
+        // tự mã hóa giá trị mặc định nếu có
+        if(typeof Hashids !== 'undefined'){
+          const h = makeHashids();
+          const nums = parseNumbers(numbersEl.value);
+          if(nums.length) showResult(h.encode(...nums));
+        } else {
+          showError('Hashids library chưa load — cần kết nối Internet để tải từ CDN.');
+        }
+      }catch(e){ /* ignore */ }
+    });
+  </script>
+</body>
+</html>
