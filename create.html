@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Tạo link rút gọn — tiniurl</title>
+  <script src="hashids.min.js"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #fafafa; text-align: center; padding: 2rem; }
+    input, button { padding: .6rem; border-radius: 8px; border: 1px solid #ddd; width: 90%; max-width: 400px; margin-bottom: 1rem; }
+    button { background: #0366d6; color: white; border: none; cursor: pointer; }
+    button:hover { background: #024ea2; }
+    pre { background: #f5f5f5; padding: 1rem; border-radius: 8px; text-align: left; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>Tạo link rút gọn</h1>
+  <p><input id="url" placeholder="Nhập URL gốc..."></p>
+  <p><input id="alias" placeholder="Tùy chọn: đặt mã riêng (vd: yt, law178)..."></p>
+  <p><button onclick="createLink()">Tạo link</button></p>
+  <div id="output"></div>
+
+  <script>
+    const hashids = new Hashids('tiniurl', 3);
+
+    function createLink() {
+      const url = document.getElementById('url').value.trim();
+      const alias = document.getElementById('alias').value.trim();
+      if (!url) return alert('Vui lòng nhập URL.');
+
+      const id = alias || hashids.encode(Date.now());
+      const result = `"${id}": "${url}"`;
+
+      document.getElementById('output').innerHTML = `
+        <p><strong>Mã rút gọn:</strong> <code>${id}</code></p>
+        <p><strong>Link rút gọn:</strong> <a target="_blank" href="${location.origin}/-/${id}">${location.origin}/-/${id}</a></p>
+        <p>Thêm dòng sau vào <code>links.json</code>:</p>
+        <pre>${result}</pre>
+      `;
+    }
+  </script>
+</body>
+</html>
