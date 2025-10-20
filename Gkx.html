@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+
+  <title>Short link — redirecting…</title>
+  <meta property="og:title" content="SHORT TITLE HERE">
+  <meta property="og:description" content="Short description shown trong preview">
+  <meta property="og:image" content="https://example.com/preview.jpg">
+  <meta property="og:type" content="website">
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+      margin: 2rem;
+      color: #111;
+      text-align: center;
+      background: #fafafa;
+    }
+
+    .card {
+      display: inline-block;
+      max-width: 680px;
+      width: 90%;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+
+    a.button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: .6rem .9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      color: #0366d6;
+      background: #f9f9f9;
+      transition: background 0.2s, color 0.2s;
+      max-width: 100%;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+
+    a.button:hover {
+      background: #0366d6;
+      color: white;
+    }
+
+    #countdown {
+      font-size: 1.2rem;
+      color: #444;
+      margin-top: 0.5rem;
+    }
+
+    .small {
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Đang chuyển hướng...</h1>
+    <p>Trang này sẽ tự động chuyển sau vài giây.</p>
+
+    <!-- ✅ Dùng data-dest để tránh lỗi highlight -->
+    <div id="redirect-data"
+      data-dest="https://thuvienphapluat.vn/TCVN/Xay-dung/TCVN-9411-2012-Nha-o-lien-ke-Tieu-chuan-thiet-ke-907721.aspx?utm_source=chatgpt.com#:~:text=6.4.3%C2%A0%C2%A0%20C%E1%BB%ADa,m%20tr%E1%BB%9F%20l%C3%AAn.">
+    </div>
+
+    <p><a id="destLink" class="button" href="#">Đi đến trang đích</a></p>
+    <p id="countdown">Đang tải...</p>
+    <p class="small">Nếu trang không tự chuyển, hãy bấm vào nút trên.</p>
+  </div>
+
+  <script>
+    (function(){
+      const dataEl = document.getElementById('redirect-data');
+      const dest = dataEl ? dataEl.dataset.dest.trim() : '';
+      const delay = 5; // số giây đếm ngược
+      let secondsLeft = delay;
+
+      if(dest){
+        const a = document.getElementById('destLink');
+        a.href = dest;
+
+        // ✅ Hiển thị gọn: chỉ domain + path
+        try {
+          const u = new URL(dest);
+          a.textContent = 'Đi đến: ' + u.origin + u.pathname;
+        } catch {
+          a.textContent = 'Đi đến trang đích';
+        }
+
+        const countdownEl = document.getElementById('countdown');
+        countdownEl.textContent = `Chuyển sau ${secondsLeft} giây...`;
+
+        const timer = setInterval(() => {
+          secondsLeft--;
+          countdownEl.textContent = `Chuyển sau ${secondsLeft} giây...`;
+          if (secondsLeft <= 0) {
+            clearInterval(timer);
+            countdownEl.textContent = 'Đang chuyển hướng...';
+            window.location.href = dest;
+          }
+        }, 1000);
+      } else {
+        document.getElementById('countdown').textContent = 'Không tìm thấy trang đích.';
+      }
+    })();
+  </script>
+</body>
+</html>
