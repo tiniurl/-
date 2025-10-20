@@ -21,10 +21,7 @@
       box-shadow: 0 6px 18px rgba(0,0,0,.08);
       max-width: 600px;
     }
-    a {
-      color: #0366d6;
-      text-decoration: none;
-    }
+    a { color: #0366d6; text-decoration: none; }
   </style>
 </head>
 <body>
@@ -35,9 +32,10 @@
 
   <script>
     async function run() {
-      const path = location.pathname.split('/').filter(Boolean).pop(); // lấy slug sau /-/
-      if (!path) {
-        document.getElementById('msg').textContent = 'Không có mã rút gọn.';
+      // lấy phần sau dấu # trong URL
+      const slug = location.hash.replace(/^#/, '').trim();
+      if (!slug) {
+        document.getElementById('msg').textContent = 'Vui lòng nhập mã rút gọn sau dấu #.';
         return;
       }
 
@@ -45,17 +43,19 @@
         const res = await fetch('./links.json');
         const links = await res.json();
 
-        if (links[path]) {
-          document.getElementById('msg').innerHTML = `Tìm thấy link. Chuyển sau 3 giây...<br><a href="${links[path]}">${links[path]}</a>`;
-          setTimeout(() => location.href = links[path], 3000);
+        if (links[slug]) {
+          document.getElementById('msg').innerHTML =
+            `Tìm thấy link. Chuyển sau 3 giây...<br><a href="${links[slug]}">${links[slug]}</a>`;
+          setTimeout(() => location.href = links[slug], 3000);
         } else {
           document.getElementById('msg').textContent = 'Liên kết không tồn tại.';
         }
-      } catch (e) {
+      } catch (err) {
         document.getElementById('msg').textContent = 'Không thể tải dữ liệu.';
       }
     }
 
+    window.addEventListener('hashchange', run);
     run();
   </script>
 </body>
