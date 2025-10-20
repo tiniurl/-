@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Đang chuyển hướng...</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      text-align: center;
+      margin-top: 10vh;
+      color: #111;
+      background: #fafafa;
+    }
+    .card {
+      display: inline-block;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      max-width: 600px;
+    }
+    a {
+      color: #0366d6;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Đang chuyển hướng...</h1>
+    <p id="msg">Đang tải...</p>
+  </div>
+
+  <script>
+    async function run() {
+      const path = location.pathname.split('/').filter(Boolean).pop(); // lấy slug sau /-/
+      if (!path) {
+        document.getElementById('msg').textContent = 'Không có mã rút gọn.';
+        return;
+      }
+
+      try {
+        const res = await fetch('./links.json');
+        const links = await res.json();
+
+        if (links[path]) {
+          document.getElementById('msg').innerHTML = `Tìm thấy link. Chuyển sau 3 giây...<br><a href="${links[path]}">${links[path]}</a>`;
+          setTimeout(() => location.href = links[path], 3000);
+        } else {
+          document.getElementById('msg').textContent = 'Liên kết không tồn tại.';
+        }
+      } catch (e) {
+        document.getElementById('msg').textContent = 'Không thể tải dữ liệu.';
+      }
+    }
+
+    run();
+  </script>
+</body>
+</html>
