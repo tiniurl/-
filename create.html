@@ -3,118 +3,170 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Tạo link ngắn | tiniurl</title>
-  <link rel="icon" type="image/png" href="assets/tiniurl.png">
+  <meta name="referrer" content="no-referrer">
+  <title>Tạo short link — tiniurl</title>
+
   <script src="https://cdn.jsdelivr.net/npm/hashids@2.2.10/dist/hashids.min.js"></script>
 
   <style>
-    :root {
-      --bg: #fafafa;
-      --card: #fff;
-      --fg: #111;
-      --border: #ddd;
-      --link: #0366d6;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111;
-        --card: #1e1e1e;
-        --fg: #eee;
-        --border: #333;
-        --link: #58a6ff;
-      }
-    }
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
-      background: var(--bg);
-      color: var(--fg);
-      margin: 0;
-      padding: 2rem;
+      margin: 2rem;
+      color: #111;
       text-align: center;
+      background: #fafafa;
     }
+
     .card {
-      background: var(--card);
       display: inline-block;
-      padding: 2rem;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
-      max-width: 520px;
-      width: 100%;
+      max-width: 680px;
+      width: 90%;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      text-align: left;
     }
-    input, textarea {
+
+    h1 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-top: 1rem;
+    }
+
+    input[type="url"],
+    input[type="text"] {
       width: 100%;
       padding: .6rem;
-      margin: .4rem 0 1rem;
-      border: 1px solid var(--border);
       border-radius: 8px;
-      background: transparent;
-      color: var(--fg);
+      border: 1px solid #ccc;
+      margin-top: .3rem;
       font-size: 1rem;
     }
+
     button {
-      background: var(--link);
+      display: inline-block;
+      padding: .6rem 1.2rem;
+      border-radius: 8px;
       border: none;
       color: white;
-      padding: 0.7rem 1.2rem;
-      border-radius: 8px;
-      font-size: 1rem;
+      background: #0366d6;
       cursor: pointer;
-      transition: opacity 0.2s;
+      transition: background 0.2s;
+      font-size: 1rem;
+      margin-top: 1.2rem;
     }
-    button:hover { opacity: 0.85; }
+
+    button:hover {
+      background: #024c9c;
+    }
+
     .output {
       margin-top: 1.5rem;
+      background: #f6f8fa;
+      border: 1px solid #e1e4e8;
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      white-space: pre-wrap;
       word-break: break-all;
-      font-weight: 500;
     }
+
     .small {
-      color: #888;
-      font-size: 0.85rem;
+      color: #666;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+
+    .shortlink {
+      color: #0366d6;
+      font-weight: bold;
+      text-decoration: none;
+    }
+
+    .shortlink:hover {
+      text-decoration: underline;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>Tạo link ngắn</h1>
-    <input type="url" id="url" placeholder="Nhập URL gốc (bắt buộc)">
-    <input type="text" id="alias" placeholder="Tùy chọn: mã ngắn (vd: yt)">
-    <input type="text" id="title" placeholder="Tiêu đề hiển thị (optional)">
-    <textarea id="desc" placeholder="Mô tả ngắn (optional)"></textarea>
-    <input type="url" id="image" placeholder="Ảnh preview (optional)">
-    <button id="createBtn">Tạo link</button>
+    <h1>Tạo link rút gọn</h1>
 
-    <div class="output" id="result"></div>
-    <p class="small">Dữ liệu được lưu cục bộ (localStorage). Bạn có thể tải file links.json để cập nhật lên GitHub.</p>
+    <label for="url">🔗 URL gốc:</label>
+    <input type="url" id="url" placeholder="https://example.com/..." required>
+
+    <label for="alias">🧩 Alias (tùy chọn):</label>
+    <input type="text" id="alias" placeholder="vd: yt, git, law178...">
+
+    <button id="generate">Tạo link</button>
+
+    <div id="result" style="display:none;">
+      <p>✅ <strong>Link rút gọn:</strong> 
+        <a id="shortlink" class="shortlink" href="#" target="_blank"></a>
+      </p>
+
+      <p><strong>Đoạn JSON thêm vào <code>links.json</code>:</strong></p>
+      <div class="output" id="jsonOutput"></div>
+    </div>
+
+    <p class="small">Nếu không nhập alias, hệ thống sẽ tự sinh ngẫu nhiên bằng Hashids (salt: tiniurl).</p>
   </div>
 
   <script>
-  const hashids = new Hashids('tiniurl', 3);
-  const base = location.origin + location.pathname.replace(/create\.html$/, '');
+    const hashids = new Hashids('tiniurl', 3);
 
-  document.getElementById('createBtn').onclick = () => {
-    const url = document.getElementById('url').value.trim();
-    if (!url) return alert('Vui lòng nhập URL!');
-
-    let alias = document.getElementById('alias').value.trim();
-    const title = document.getElementById('title').value.trim();
-    const desc = document.getElementById('desc').value.trim();
-    const image = document.getElementById('image').value.trim();
-
-    if (!alias) {
-      alias = hashids.encode(Math.floor(Date.now() / 1000) % 100000);
+    function hashUrlWithUUID(url) {
+      const uuid = crypto.randomUUID().split('-')[0];
+      const base = `${url}-${uuid}`;
+      let total = 0;
+      for (let i = 0; i < base.length; i++) {
+        total = (total * 31 + base.charCodeAt(i)) % 1e9;
+      }
+      return total;
     }
 
-    const newLink = { url, title, description: desc, image };
-    const links = JSON.parse(localStorage.getItem('tiniurl_links') || '{}');
-    links[alias] = newLink;
-    localStorage.setItem('tiniurl_links', JSON.stringify(links, null, 2));
+    document.getElementById('generate').addEventListener('click', () => {
+      const urlInput = document.getElementById('url');
+      const aliasInput = document.getElementById('alias');
+      const rawUrl = urlInput.value.trim();
+      const alias = aliasInput.value.trim();
 
-    const shortURL = `${base}${alias}`;
-    document.getElementById('result').innerHTML = `
-      ✅ <a href="${shortURL}" target="_blank">${shortURL}</a>
-      <br><button onclick="navigator.clipboard.writeText('${shortURL}')">Copy</button>
-    `;
-  };
+      if (!rawUrl) {
+        alert('Vui lòng nhập URL hợp lệ.');
+        return;
+      }
+
+      try {
+        new URL(rawUrl);
+      } catch {
+        alert('URL không hợp lệ.');
+        return;
+      }
+
+      // Nếu có alias thì dùng alias, không thì tự sinh
+      let key;
+      if (alias) {
+        key = alias;
+      } else {
+        const num = hashUrlWithUUID(rawUrl);
+        key = hashids.encode(num);
+      }
+
+      const shortLink = `https://tiniurl.github.io/-/${key}`;
+      const jsonSnippet = `"${key}": "${rawUrl}"`;
+
+      document.getElementById('result').style.display = 'block';
+      document.getElementById('shortlink').href = shortLink;
+      document.getElementById('shortlink').textContent = shortLink;
+      document.getElementById('jsonOutput').textContent = jsonSnippet;
+    });
   </script>
 </body>
 </html>
