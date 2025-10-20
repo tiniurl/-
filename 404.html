@@ -36,24 +36,29 @@
 
   <script>
     async function run() {
+      // 🧩 Lấy slug từ đường dẫn (vd: /-/yt → yt)
       const parts = location.pathname.split('/').filter(Boolean);
-      const slug = parts.pop(); // lấy phần sau cùng (/yt, /abc)
+      const slug = parts.pop();
+      const repo = parts[0]; // tên repo hiện tại (ở đây là "-")
+      const msg = document.getElementById('msg');
+
       if (!slug) {
-        document.getElementById('msg').textContent = 'Không có mã rút gọn.';
+        msg.textContent = 'Không có mã rút gọn.';
         return;
       }
 
       try {
-        // ⚠️ fetch tuyệt đối (vì repo tên là "-")
-        const res = await fetch('/-/links.json');
+        // 🧠 Fetch tuyệt đối, tránh lỗi đường dẫn
+        const res = await fetch(`/${repo}/links.json`, { cache: 'no-cache' });
+        if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
         const links = await res.json();
 
-        if (links[slug]) {
-          const dest = links[slug];
-          document.getElementById('msg').innerHTML =
-            `Tìm thấy link: <a href="${dest}">${dest}</a><br>` +
-            `Chuyển sau <span id="count">3</span> giây...`;
-
+        const dest = links[slug];
+        if (dest) {
+          msg.innerHTML = `
+            Tìm thấy link: <a href="${dest}">${dest}</a><br>
+            Chuyển sau <span id="count">3</span> giây...
+          `;
           let sec = 3;
           const timer = setInterval(() => {
             sec--;
@@ -64,10 +69,11 @@
             }
           }, 1000);
         } else {
-          document.getElementById('msg').textContent = 'Liên kết không tồn tại.';
+          msg.textContent = 'Liên kết không tồn tại trong links.json.';
         }
       } catch (err) {
-        document.getElementById('msg').textContent = 'Không thể tải dữ liệu.';
+        console.error(err);
+        msg.textContent = 'Không thể tải dữ liệu. (xem Console để biết chi tiết)';
       }
     }
 
