@@ -11,9 +11,6 @@
   <meta property="og:image" content="https://example.com/preview.jpg">
   <meta property="og:type" content="website">
 
-  <!-- Mục tiêu chuyển hướng -->
-  <meta name="destination" content="https://vbpl.vn/TW/Pages/vbpq-toanvan.aspx?ItemID=95942#Phan_hai_Chuong_XI_Muc_3_Dieu_178:~:text=%C4%90i%E1%BB%81u%20178.%20Tr%E1%BB%95,m%C3%A9t%20tr%E1%BB%9F%20l%C3%AAn.">
-
   <style>
     body {
       font-family: system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;
@@ -47,14 +44,20 @@
   <div class="card">
     <h1>Đang chuyển hướng...</h1>
     <p>Trang này sẽ tự động chuyển sau vài giây.</p>
+
+    <!-- ✅ URL đích để trong data attribute -->
+    <div id="redirect-data"
+      data-dest="https://vbpl.vn/TW/Pages/vbpq-toanvan.aspx?ItemID=95942#Phan_hai_Chuong_XI_Muc_3_Dieu_178:~:text=%C4%90i%E1%BB%81u%20178.%20Tr%E1%BB%95,m%C3%A9t%20tr%E1%BB%9F%20l%C3%AAn.">
+    </div>
+
     <p><a id="destLink" class="button" href="#">Đi đến trang đích</a></p>
     <p id="countdown">Đang tải...</p>
   </div>
 
   <script>
     (function(){
-      const meta = document.querySelector('meta[name="destination"]');
-      const dest = meta ? meta.content.trim() : '';
+      const dataEl = document.getElementById('redirect-data');
+      const dest = dataEl ? dataEl.dataset.dest.trim() : '';
       const delay = 5; // số giây đếm ngược
       let secondsLeft = delay;
 
@@ -82,3 +85,4 @@
   </script>
 </body>
 </html>
+
