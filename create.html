@@ -28,71 +28,26 @@
       text-align: left;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 1.5rem;
+    h1 { text-align:center; margin-bottom:1.5rem; }
+    label { font-weight: 600; display:block; margin-top:1rem; }
+    input[type="url"], input[type="text"] {
+      width:100%; padding:.6rem; border-radius:8px; border:1px solid #ccc;
+      margin-top:.3rem; font-size:1rem;
     }
-
-    label {
-      font-weight: 600;
-      display: block;
-      margin-top: 1rem;
-    }
-
-    input[type="url"],
-    input[type="text"] {
-      width: 100%;
-      padding: .6rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      margin-top: .3rem;
-      font-size: 1rem;
-    }
-
     button {
-      display: inline-block;
-      padding: .6rem 1.2rem;
-      border-radius: 8px;
-      border: none;
-      color: white;
-      background: #0366d6;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-size: 1rem;
-      margin-top: 1.2rem;
+      display:inline-block; padding:.6rem 1.2rem; border-radius:8px;
+      border:none; color:white; background:#0366d6; cursor:pointer;
+      transition:background 0.2s; font-size:1rem; margin-top:1.2rem;
     }
-
-    button:hover {
-      background: #024c9c;
-    }
-
+    button:hover { background:#024c9c; }
     .output {
-      margin-top: 1.5rem;
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 8px;
-      padding: 1rem;
-      font-family: monospace;
-      white-space: pre-wrap;
-      word-break: break-all;
+      margin-top:1.5rem; background:#f6f8fa; border:1px solid #e1e4e8;
+      border-radius:8px; padding:1rem; font-family:monospace; white-space:pre-wrap;
+      word-break:break-all;
     }
-
-    .small {
-      color: #666;
-      font-size: 0.9rem;
-      margin-top: 1rem;
-      text-align: center;
-    }
-
-    .shortlink {
-      color: #0366d6;
-      font-weight: bold;
-      text-decoration: none;
-    }
-
-    .shortlink:hover {
-      text-decoration: underline;
-    }
+    .small { color:#666; font-size:0.9rem; margin-top:1rem; text-align:center; }
+    .shortlink { color:#0366d6; font-weight:bold; text-decoration:none; }
+    .shortlink:hover { text-decoration:underline; }
   </style>
 </head>
 <body>
@@ -116,51 +71,34 @@
       <div class="output" id="jsonOutput"></div>
     </div>
 
-    <p class="small">Nếu không nhập alias, hệ thống sẽ tự sinh ngẫu nhiên bằng Hashids (salt: tiniurl).</p>
+    <p class="small">Hệ thống sinh mã 3 ký tự từ URL + UUID để đảm bảo mỗi lần tạo khác nhau.</p>
   </div>
 
   <script>
     const hashids = new Hashids('tiniurl', 3);
 
-    function hashUrlWithUUID(url) {
-      const uuid = crypto.randomUUID().split('-')[0];
-      const base = `${url}-${uuid}`;
-      let total = 0;
-      for (let i = 0; i < base.length; i++) {
-        total = (total * 31 + base.charCodeAt(i)) % 1e9;
+    function shortIdFromUrl(url) {
+      const uuidPart = crypto.randomUUID().split('-')[0]; // 1 phần UUID
+      const combined = url + uuidPart;
+      let hash = 0;
+      for (let i = 0; i < combined.length; i++) {
+        hash = (hash * 31 + combined.charCodeAt(i)) >>> 0;
       }
-      return total;
+      // chuyển sang base62 / Hashids 3 ký tự
+      return hashids.encode(hash);
     }
 
     document.getElementById('generate').addEventListener('click', () => {
-      const urlInput = document.getElementById('url');
-      const aliasInput = document.getElementById('alias');
-      const rawUrl = urlInput.value.trim();
-      const alias = aliasInput.value.trim();
+      const urlInput = document.getElementById('url').value.trim();
+      const aliasInput = document.getElementById('alias').value.trim();
 
-      if (!rawUrl) {
-        alert('Vui lòng nhập URL hợp lệ.');
-        return;
-      }
+      if (!urlInput) return alert('Vui lòng nhập URL hợp lệ.');
 
-      try {
-        new URL(rawUrl);
-      } catch {
-        alert('URL không hợp lệ.');
-        return;
-      }
+      try { new URL(urlInput); } catch { return alert('URL không hợp lệ.'); }
 
-      // Nếu có alias thì dùng alias, không thì tự sinh
-      let key;
-      if (alias) {
-        key = alias;
-      } else {
-        const num = hashUrlWithUUID(rawUrl);
-        key = hashids.encode(num);
-      }
-
+      const key = aliasInput || shortIdFromUrl(urlInput);
       const shortLink = `https://tiniurl.github.io/-/${key}`;
-      const jsonSnippet = `"${key}": "${rawUrl}"`;
+      const jsonSnippet = `"${key}": "${urlInput}"`;
 
       document.getElementById('result').style.display = 'block';
       document.getElementById('shortlink').href = shortLink;
