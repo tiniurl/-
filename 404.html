@@ -4,80 +4,172 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <title>Đang chuyển hướng...</title>
+  <title>Short link — Redirecting…</title>
+
+  <!-- 🪞 Meta preview -->
+  <meta property="og:title" content="Short link — Redirecting…">
+  <meta property="og:description" content="Trang này sẽ tự động chuyển bạn đến liên kết đích sau vài giây.">
+  <meta property="og:type" content="website">
+
   <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fafafa;
+      --fg: #111;
+      --card-bg: #fff;
+      --shadow: rgba(0,0,0,.08);
+      --link: #0366d6;
+      --border: #ddd;
+      --muted: #777;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111;
+        --fg: #eee;
+        --card-bg: #1e1e1e;
+        --shadow: rgba(0,0,0,.3);
+        --link: #58a6ff;
+        --border: #444;
+        --muted: #aaa;
+      }
+    }
+    * { box-sizing: border-box; }
     body {
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+      margin: 2rem;
+      color: var(--fg);
       text-align: center;
-      margin-top: 10vh;
-      color: #111;
-      background: #fafafa;
+      background: var(--bg);
+      transition: background 0.3s, color 0.3s;
     }
     .card {
       display: inline-block;
-      padding: 1.5rem;
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 6px 18px rgba(0,0,0,.08);
-      max-width: 600px;
+      max-width: 680px;
+      width: 90%;
+      padding: 1.8rem;
+      border-radius: 14px;
+      background: var(--card-bg);
+      box-shadow: 0 6px 18px var(--shadow);
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+      transition: background 0.3s, box-shadow 0.3s;
+      animation: fadeIn 0.4s ease-in-out;
     }
-    a {
-      color: #0366d6;
-      word-break: break-all;
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+    h1 {
+      font-weight: 600;
+      font-size: 1.6rem;
+      margin-bottom: 0.3rem;
+    }
+    p {
+      line-height: 1.6;
+      margin: 0.6rem 0;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.7rem 1.2rem;
+      border-radius: 8px;
       text-decoration: none;
+      border: 1px solid var(--border);
+      color: var(--link);
+      background: transparent;
+      transition: all 0.2s ease;
+      max-width: 100%;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+      font-weight: 500;
+    }
+    a.button:hover {
+      background: var(--link);
+      color: white;
+      border-color: var(--link);
+    }
+    #countdown {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-top: 0.6rem;
+    }
+    .small {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.8rem;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Đang chuyển hướng...</h1>
-    <p id="msg">Đang tải...</p>
+  <div class="card" role="alert">
+    <h1 id="title">Đang chuyển hướng…</h1>
+    <p id="desc">Trang này sẽ tự động chuyển sau vài giây.</p>
+    <p><a id="destLink" class="button" href="#">Đi đến trang đích</a></p>
+    <p id="countdown">Đang tải...</p>
+    <p class="small">Nếu trang không tự chuyển, hãy bấm vào nút trên.</p>
   </div>
 
   <script>
-    async function run() {
-      // 🧩 Lấy slug từ đường dẫn (vd: /-/yt → yt)
-      const parts = location.pathname.split('/').filter(Boolean);
-      const slug = parts.pop();
-      const repo = parts[0]; // tên repo hiện tại (ở đây là "-")
-      const msg = document.getElementById('msg');
+  (async function(){
+    const msg = document.getElementById('countdown');
+    const linkEl = document.getElementById('destLink');
+    const titleEl = document.getElementById('title');
+    const descEl = document.getElementById('desc');
 
-      if (!slug) {
-        msg.textContent = 'Không có mã rút gọn.';
-        return;
-      }
+    // 🧩 Lấy slug từ đường dẫn (/yt → "yt")
+    const parts = location.pathname.split('/').filter(Boolean);
+    const slug = parts.pop();
+    const repo = parts[0]; // repo name (ở đây là "-")
 
-      try {
-        // 🧠 Fetch tuyệt đối, tránh lỗi đường dẫn
-        const res = await fetch(`/${repo}/links.json`, { cache: 'no-cache' });
-        if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
-        const links = await res.json();
-
-        const dest = links[slug];
-        if (dest) {
-          msg.innerHTML = `
-            Tìm thấy link: <a href="${dest}">${dest}</a><br>
-            Chuyển sau <span id="count">3</span> giây...
-          `;
-          let sec = 3;
-          const timer = setInterval(() => {
-            sec--;
-            document.getElementById('count').textContent = sec;
-            if (sec <= 0) {
-              clearInterval(timer);
-              window.location.href = dest;
-            }
-          }, 1000);
-        } else {
-          msg.textContent = 'Liên kết không tồn tại trong links.json.';
-        }
-      } catch (err) {
-        console.error(err);
-        msg.textContent = 'Không thể tải dữ liệu. (xem Console để biết chi tiết)';
-      }
+    if (!slug) {
+      msg.textContent = 'Không có mã rút gọn.';
+      return;
     }
 
-    run();
+    try {
+      // 🧠 Tải links.json
+      const res = await fetch(`/${repo}/links.json`, { cache: 'no-cache' });
+      if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+      const links = await res.json();
+
+      const dest = links[slug];
+      if (dest) {
+        let secondsLeft = 5;
+        linkEl.href = dest;
+
+        // Hiển thị gọn domain
+        try {
+          const u = new URL(dest);
+          linkEl.textContent = 'Đi đến: ' + u.hostname + u.pathname;
+        } catch {
+          linkEl.textContent = 'Đi đến trang đích';
+        }
+
+        msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
+        titleEl.textContent = 'Đang chuyển hướng…';
+        descEl.textContent = 'Trang này sẽ tự động chuyển bạn đến liên kết đích.';
+
+        const timer = setInterval(() => {
+          secondsLeft--;
+          msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
+          if (secondsLeft <= 0) {
+            clearInterval(timer);
+            msg.textContent = 'Đang chuyển hướng...';
+            window.location.href = dest;
+          }
+        }, 1000);
+      } else {
+        titleEl.textContent = 'Liên kết không tồn tại!';
+        msg.textContent = `Không tìm thấy "${slug}" trong links.json.`;
+        linkEl.style.display = 'none';
+      }
+    } catch (err) {
+      console.error(err);
+      titleEl.textContent = 'Lỗi tải dữ liệu';
+      msg.textContent = 'Không thể tải links.json.';
+      linkEl.style.display = 'none';
+    }
+  })();
   </script>
 </body>
 </html>
