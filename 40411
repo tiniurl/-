@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+
+  <title>Short link — redirecting…</title>
+
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto,'Helvetica Neue',Arial;
+      margin: 2rem;
+      color: #111;
+      text-align: center;
+      background: #fafafa;
+    }
+    .card {
+      display: inline-block;
+      max-width: 680px;
+      width: 90%;
+      padding: 1.5rem;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 6px 18px rgba(0,0,0,.08);
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: .6rem .9rem;
+      border-radius: 8px;
+      text-decoration: none;
+      border: 1px solid #ddd;
+      color: #0366d6;
+      background: #f9f9f9;
+      transition: background 0.2s, color 0.2s;
+      max-width: 100%;
+      word-break: break-all;
+      overflow-wrap: anywhere;
+    }
+    a.button:hover {
+      background: #0366d6;
+      color: white;
+    }
+    #countdown {
+      font-size: 1.2rem;
+      color: #444;
+      margin-top: 0.5rem;
+    }
+    .small {
+      font-size: 0.9rem;
+      color: #777;
+      margin-top: 0.5rem;
+    }
+    .preview-img {
+      max-width: 100%;
+      margin: 1rem 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.1);
+    }
+    .preview-title { font-size: 1.3rem; font-weight: 600; margin-top: 0.5rem; }
+    .preview-desc { font-size: 1rem; color: #555; margin-top: 0.3rem; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Đang chuyển hướng...</h1>
+    <div id="preview" style="display:none;">
+      <img id="previewImage" class="preview-img" src="" alt="">
+      <div class="preview-title" id="previewTitle"></div>
+      <div class="preview-desc" id="previewDesc"></div>
+    </div>
+    <p>Trang này sẽ tự động chuyển sau vài giây.</p>
+    <p><a id="destLink" class="button" href="#">Đi đến trang đích</a></p>
+    <p id="countdown">Đang tải...</p>
+    <p class="small">Nếu trang không tự chuyển, hãy bấm vào nút trên.</p>
+  </div>
+
+  <script>
+    const DEFAULTS = {
+      title: "Tiêu đề mặc định",
+      desc: "Mô tả mặc định",
+      image: "https://example.com/default.jpg"
+    };
+
+    (function(){
+      // Lấy links.json
+      fetch('/-/links.json')
+        .then(res => res.json())
+        .then(links => {
+          // Lấy mã từ URL
+          const pathParts = window.location.pathname.split('/');
+          const key = pathParts[pathParts.length-1];
+
+          const data = links[key];
+          const dest = data ? data.url : '';
+
+          const title = data && data.title ? data.title : DEFAULTS.title;
+          const desc = data && data.desc ? data.desc : DEFAULTS.desc;
+          const image = data && data.image ? data.image : DEFAULTS.image;
+
+          if(dest){
+            // cập nhật preview
+            document.getElementById('preview').style.display='block';
+            document.getElementById('previewImage').src = image;
+            document.getElementById('previewTitle').textContent = title;
+            document.getElementById('previewDesc').textContent = desc;
+
+            const a = document.getElementById('destLink');
+            a.href = dest;
+
+            // hiển thị gọn domain + path
+            try { a.textContent = 'Đi đến: ' + new URL(dest).origin + new URL(dest).pathname; } 
+            catch { a.textContent = 'Đi đến trang đích'; }
+
+            let secondsLeft = 5;
+            const countdownEl = document.getElementById('countdown');
+            countdownEl.textContent = `Chuyển sau ${secondsLeft} giây...`;
+
+            const timer = setInterval(() => {
+              secondsLeft--;
+              countdownEl.textContent = `Chuyển sau ${secondsLeft} giây...`;
+              if(secondsLeft <= 0){
+                clearInterval(timer);
+                countdownEl.textContent='Đang chuyển hướng...';
+                window.location.href = dest;
+              }
+            }, 1000);
+
+          } else {
+            document.getElementById('countdown').textContent = 'Không tìm thấy trang đích.';
+          }
+        })
+        .catch(err => {
+          document.getElementById('countdown').textContent = 'Không thể tải dữ liệu.';
+          console.error(err);
+        });
+    })();
+  </script>
+</body>
+</html>
