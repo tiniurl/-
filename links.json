@@ -1,0 +1,26 @@
+{
+  "yt": {
+    "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "title": "YouTube Video",
+    "desc": "Video nổi tiếng",
+    "image": "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg"
+  },
+  "git": {
+    "url": "https://github.com/",
+    "title": "GitHub",
+    "desc": "Trang chủ GitHub",
+    "image": "https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png"
+  },
+  "a1B": {
+    "url": "https://vbpl.vn/TW/Pages/vbpq-toanvan.aspx?ItemID=95942",
+    "title": "Luật Việt Nam",
+    "desc": "Điều 178, Chương XI",
+    "image": "https://example.com/preview.jpg"
+  },
+  "9o9elzO": {
+    "url": "https://www.youtube.com/shorts/0VOzENC6mR8",
+    "title": "Hi",
+    "desc": "Oke",
+    "image": "https://example.com/default.jpg"
+  }
+}
