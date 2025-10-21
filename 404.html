@@ -1,189 +1,182 @@
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="referrer" content="no-referrer">
-  <link rel="icon" type="ico" href="/-/tiniurl.ico">
-  <title>Short link — Redirecting…</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <link rel="icon" type="ico" href="/-/tiniurl.ico">
+    <title>Short link — Redirecting…</title>
 
-  <!-- 🪞 Meta preview -->
-  <meta property="og:title" content="Short link — Redirecting…">
-  <meta property="og:description" content="Trang này sẽ tự động chuyển bạn đến liên kết đích sau vài giây.">
-  <meta property="og:type" content="website">
+    <!-- 🪞 Meta preview -->
+    <meta property="og:title" content="Short link — Redirecting…">
+    <meta property="og:description" content="Trang này sẽ tự động chuyển bạn đến liên kết đích sau vài giây.">
+    <meta property="og:type" content="website">
 
-  <style>
-    :root {
-      color-scheme: light dark;
-      --bg: #fafafa;
-      --fg: #111;
-      --card-bg: #fff;
-      --shadow: rgba(0,0,0,.08);
-      --link: #0366d6;
-      --border: #ddd;
-      --muted: #777;
-    }
-    @media (prefers-color-scheme: dark) {
-      :root {
-        --bg: #111;
-        --fg: #eee;
-        --card-bg: #1e1e1e;
-        --shadow: rgba(0,0,0,.3);
-        --link: #58a6ff;
-        --border: #444;
-        --muted: #aaa;
-      }
-    }
-    * { box-sizing: border-box; }
-    body {
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
-      margin: 2rem;
-      color: var(--fg);
-      text-align: center;
-      background: var(--bg);
-      transition: background 0.3s, color 0.3s;
-    }
-    .card {
-      display: inline-block;
-      max-width: 680px;
-      width: 90%;
-      padding: 1.8rem;
-      border-radius: 14px;
-      background: var(--card-bg);
-      box-shadow: 0 6px 18px var(--shadow);
-      word-wrap: break-word;
-      overflow-wrap: anywhere;
-      transition: background 0.3s, box-shadow 0.3s;
-      animation: fadeIn 0.4s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: none; }
-    }
-    h1 {
-      font-weight: 600;
-      font-size: 1.6rem;
-      margin-bottom: 0.3rem;
-    }
-    p { line-height: 1.6; margin: 0.6rem 0; }
-    a.button {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.7rem 1.2rem;
-      border-radius: 8px;
-      text-decoration: none;
-      border: 1px solid var(--border);
-      color: var(--link);
-      background: transparent;
-      transition: all 0.2s ease;
-      max-width: 100%;
-      word-break: break-all;
-      overflow-wrap: anywhere;
-      font-weight: 500;
-    }
-    a.button:hover {
-      background: var(--link);
-      color: white;
-      border-color: var(--link);
-    }
-    #countdown {
-      font-size: 1.1rem;
-      color: var(--muted);
-      margin-top: 0.6rem;
-    }
-    .small {
-      font-size: 0.9rem;
-      color: var(--muted);
-      margin-top: 0.8rem;
-    }
-  </style>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: #fafafa;
+            --fg: #111;
+            --card-bg: #fff;
+            --shadow: rgba(0,0,0,.08);
+            --link: #0366d6;
+            --border: #ddd;
+            --muted: #777;
+        }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #111;
+                --fg: #eee;
+                --card-bg: #1e1e1e;
+                --shadow: rgba(0,0,0,.3);
+                --link: #58a6ff;
+                --border: #444;
+                --muted: #aaa;
+            }
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+            margin: 2rem;
+            color: var(--fg);
+            text-align: center;
+            background: var(--bg);
+            transition: background 0.3s, color 0.3s;
+        }
+        .card {
+            display: inline-block;
+            max-width: 680px;
+            width: 90%;
+            padding: 1.8rem;
+            border-radius: 14px;
+            background: var(--card-bg);
+            box-shadow: 0 6px 18px var(--shadow);
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            transition: background 0.3s, box-shadow 0.3s;
+            animation: fadeIn 0.4s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: none; }
+        }
+        h1 {
+            font-weight: 600;
+            font-size: 1.6rem;
+            margin-bottom: 0.3rem;
+        }
+        p { line-height: 1.6; margin: 0.6rem 0; }
+        a.button {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 1px solid var(--border);
+            color: var(--link);
+            background: transparent;
+            transition: all 0.2s ease;
+            max-width: 100%;
+            word-break: break-all;
+            overflow-wrap: anywhere;
+            font-weight: 500;
+        }
+        a.button:hover {
+            background: var(--link);
+            color: white;
+            border-color: var(--link);
+        }
+        #countdown {
+            font-size: 1.1rem;
+            color: var(--muted);
+            margin-top: 0.6rem;
+        }
+        .small {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-top: 0.8rem;
+        }
+    </style>
 </head>
 <body>
-  <div class="card" role="alert">
-    <h1 id="title">Đang chuyển hướng…</h1>
-    <p id="desc">Trang này sẽ tự động chuyển sau vài giây.</p>
-    <p><a id="destLink" class="button" href="#">Đi đến trang đích</a></p>
-    <p id="countdown">Đang tải...</p>
-    <p class="small">Nếu trang không tự chuyển, hãy bấm vào nút trên.</p>
-  </div>
+    <div class="card" role="alert">
+        <h1 id="title">Đang chuyển hướng…</h1>
+        <p id="desc">Trang này sẽ tự động chuyển sau vài giây.</p>
+        <p>
+            <a id="destLink" class="button" href="#">Đi đến trang đích</a>
+        </p>
+        <p id="countdown">Đang tải...</p>
+        <p class="small">Nếu trang không tự chuyển, hãy bấm vào nút trên.</p>
+    </div>
 
-  <script>
-  (async function(){
-    const msg = document.getElementById('countdown');
-    const linkEl = document.getElementById('destLink');
-    const titleEl = document.getElementById('title');
-    const descEl = document.getElementById('desc');
+    <script>
+        (async function() {
+            const msg = document.getElementById('countdown');
+            const linkEl = document.getElementById('destLink');
+            const titleEl = document.getElementById('title');
+            const descEl = document.getElementById('desc');
 
-    const parts = location.pathname.split('/').filter(Boolean);
-    const slug = parts.pop();
-    const repo = parts[0];
+            // slug từ đường dẫn (/yt -> "yt")
+            const parts = location.pathname.split('/').filter(Boolean);
+            const slug = parts.pop();
+            const repo = parts[0]; // repo name (ở đây là "-")
 
-    if (!slug) {
-      msg.textContent = 'Không có mã rút gọn.';
-      return;
-    }
-
-    try {
-      const res = await fetch(`/${repo}/links.json`, { cache: 'no-cache' });
-      if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
-      const links = await res.json();
-
-      const data = links[slug];
-      if (data && data.url) {
-        const dest = data.url;
-
-        titleEl.textContent = data.title || 'Đang chuyển hướng…';
-        descEl.textContent = data.desc || 'Trang này sẽ tự động chuyển bạn đến liên kết đích.';
-
-        let secondsLeft = 5;
-        linkEl.href = dest;
-        try {
-          const u = new URL(dest);
-          linkEl.textContent = 'Đi đến: ' + u.hostname + u.pathname;
-        } catch {
-          linkEl.textContent = 'Đi đến trang đích';
-        }
-
-        msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
-
-        const timer = setInterval(() => {
-          secondsLeft--;
-          msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
-          if (secondsLeft <= 0) {
-            clearInterval(timer);
-
-            // Fix scroll trên desktop từ YouTube
-            if (dest.includes('#') || dest.includes(':~:text=')) {
-              const hashIndex = dest.indexOf('#');
-              if (hashIndex !== -1) {
-                const urlWithoutHash = dest.substring(0, hashIndex);
-                const hash = dest.substring(hashIndex);
-                // Load trang trước, sau đó thêm hash để scroll đúng
-                window.location.href = urlWithoutHash;
-                setTimeout(() => {
-                  window.location.href = dest;
-                }, 50);
-              } else {
-                // :~:text= scroll trực tiếp
-                window.location.href = dest;
-              }
-            } else {
-              window.location.href = dest;
+            if (!slug) {
+                msg.textContent = 'Không có mã rút gọn.';
+                return;
             }
-          }
-        }, 1000);
-      } else {
-        titleEl.textContent = 'Liên kết không tồn tại!';
-        msg.textContent = `Không tìm thấy "${slug}" trong links.json.`;
-        linkEl.style.display = 'none';
-      }
-    } catch (err) {
-      console.error(err);
-      titleEl.textContent = 'Lỗi tải dữ liệu';
-      msg.textContent = 'Không thể tải links.json.';
-      linkEl.style.display = 'none';
-    }
-  })();
-  </script>
+
+            try {
+                const res = await fetch(`/${repo}/links.json`, { cache: 'no-cache' });
+                if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
+
+                const links = await res.json();
+                const data = links[slug];
+
+                if (data && data.url) {
+                    const dest = data.url;
+
+                    // Cập nhật title/desc nếu có
+                    titleEl.textContent = data.title || 'Đang chuyển hướng…';
+                    descEl.textContent = data.desc || 'Trang này sẽ tự động chuyển bạn đến liên kết đích.';
+
+                    let secondsLeft = 5;
+                    linkEl.href = dest;
+
+                    try {
+                        const u = new URL(dest);
+                        linkEl.textContent = 'Đi đến: ' + u.hostname + u.pathname;
+                    } catch {
+                        linkEl.textContent = 'Đi đến trang đích';
+                    }
+
+                    msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
+
+                    const timer = setInterval(() => {
+                        secondsLeft--;
+                        msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
+                        if (secondsLeft <= 0) {
+                            clearInterval(timer);
+                            // Nếu link có highlight (# hoặc :~:text=), dùng assign để scroll đúng
+                            if (dest.includes('#') || dest.includes(':~:text=')) {
+                                window.location.assign(dest);
+                            } else {
+                                window.location.href = dest;
+                            }
+                        }
+                    }, 1000);
+                } else {
+                    titleEl.textContent = 'Liên kết không tồn tại!';
+                    msg.textContent = `Không tìm thấy "${slug}" trong links.json.`;
+                    linkEl.style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+                titleEl.textContent = 'Lỗi tải dữ liệu';
+                msg.textContent = 'Không thể tải links.json.';
+                linkEl.style.display = 'none';
+            }
+        })();
+    </script>
 </body>
 </html>
