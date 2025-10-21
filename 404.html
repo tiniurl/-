@@ -114,10 +114,9 @@
     const titleEl = document.getElementById('title');
     const descEl = document.getElementById('desc');
 
-    // slug từ đường dẫn (/yt -> "yt")
     const parts = location.pathname.split('/').filter(Boolean);
     const slug = parts.pop();
-    const repo = parts[0]; // repo name (ở đây là "-")
+    const repo = parts[0];
 
     if (!slug) {
       msg.textContent = 'Không có mã rút gọn.';
@@ -133,7 +132,6 @@
       if (data && data.url) {
         const dest = data.url;
 
-        // Cập nhật title/desc nếu có
         titleEl.textContent = data.title || 'Đang chuyển hướng…';
         descEl.textContent = data.desc || 'Trang này sẽ tự động chuyển bạn đến liên kết đích.';
 
@@ -154,9 +152,21 @@
           if (secondsLeft <= 0) {
             clearInterval(timer);
 
-            // Nếu link có highlight (# hoặc :~:text=), dùng assign để scroll đúng
+            // Fix scroll trên desktop từ YouTube
             if (dest.includes('#') || dest.includes(':~:text=')) {
-              window.location.assign(dest);
+              const hashIndex = dest.indexOf('#');
+              if (hashIndex !== -1) {
+                const urlWithoutHash = dest.substring(0, hashIndex);
+                const hash = dest.substring(hashIndex);
+                // Load trang trước, sau đó thêm hash để scroll đúng
+                window.location.href = urlWithoutHash;
+                setTimeout(() => {
+                  window.location.href = dest;
+                }, 50);
+              } else {
+                // :~:text= scroll trực tiếp
+                window.location.href = dest;
+              }
             } else {
               window.location.href = dest;
             }
