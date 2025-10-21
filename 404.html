@@ -64,10 +64,7 @@
       font-size: 1.6rem;
       margin-bottom: 0.3rem;
     }
-    p {
-      line-height: 1.6;
-      margin: 0.6rem 0;
-    }
+    p { line-height: 1.6; margin: 0.6rem 0; }
     a.button {
       display: inline-block;
       margin-top: 1rem;
@@ -116,7 +113,7 @@
     const titleEl = document.getElementById('title');
     const descEl = document.getElementById('desc');
 
-    // 🧩 Lấy slug từ đường dẫn (/yt → "yt")
+    // slug từ đường dẫn (/yt -> "yt")
     const parts = location.pathname.split('/').filter(Boolean);
     const slug = parts.pop();
     const repo = parts[0]; // repo name (ở đây là "-")
@@ -127,17 +124,20 @@
     }
 
     try {
-      // 🧠 Tải links.json
       const res = await fetch(`/${repo}/links.json`, { cache: 'no-cache' });
       if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
       const links = await res.json();
 
-      const dest = links[slug];
-      if (dest) {
+      const data = links[slug];
+      if (data && data.url) {
+        const dest = data.url;
+
+        // Cập nhật title/desc nếu có
+        titleEl.textContent = data.title || 'Đang chuyển hướng…';
+        descEl.textContent = data.desc || 'Trang này sẽ tự động chuyển bạn đến liên kết đích.';
+
         let secondsLeft = 5;
         linkEl.href = dest;
-
-        // Hiển thị gọn domain
         try {
           const u = new URL(dest);
           linkEl.textContent = 'Đi đến: ' + u.hostname + u.pathname;
@@ -146,16 +146,19 @@
         }
 
         msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
-        titleEl.textContent = 'Đang chuyển hướng…';
-        descEl.textContent = 'Trang này sẽ tự động chuyển bạn đến liên kết đích.';
 
         const timer = setInterval(() => {
           secondsLeft--;
           msg.textContent = `Chuyển sau ${secondsLeft} giây...`;
           if (secondsLeft <= 0) {
             clearInterval(timer);
-            msg.textContent = 'Đang chuyển hướng...';
-            window.location.href = dest;
+
+            // Nếu link có highlight (# hoặc :~:text=), dùng assign để scroll đúng
+            if (dest.includes('#') || dest.includes(':~:text=')) {
+              window.location.assign(dest);
+            } else {
+              window.location.href = dest;
+            }
           }
         }, 1000);
       } else {
