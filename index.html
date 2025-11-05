@@ -26,29 +26,35 @@
     </video>
 
     <script>
-      // Lấy toàn bộ URL hiện tại (dạng thô, không bị cắt bởi &)
-      const fullUrl = window.location.href;
-      const marker = '?url=';
-      const idx = fullUrl.indexOf(marker);
+  const fullUrl = window.location.href;
+  const marker = '?url=';
+  const idx = fullUrl.indexOf(marker);
 
-      if (idx !== -1) {
-        // Lấy toàn bộ chuỗi sau ?url=
-        const videoUrl = fullUrl.substring(idx + marker.length);
-        const decoded = decodeURIComponent(videoUrl);
+  if (idx !== -1) {
+    const videoUrl = fullUrl.substring(idx + marker.length);
+    const decoded = decodeURIComponent(videoUrl);
 
-        const player = document.getElementById('player');
-        const source = document.getElementById('videoSource');
-        source.src = decoded;
-        player.style.display = 'block';
-        player.load();
-      } else {
-        document.body.innerHTML = `
-          <p style="text-align:center;">
-            ❌ Không tìm thấy video.<br>
-            Vui lòng truy cập theo dạng:<br>
-            <code>?url=https://cdn.discordapp.com/.../video.mp4?ex=...</code>
-          </p>`;
-      }
-    </script>
+    const player = document.getElementById('player');
+    const source = document.getElementById('videoSource');
+    source.src = decoded;
+    player.style.display = 'block';
+    player.load();
+
+    // Khi video sẵn sàng -> tự mở full màn hình
+    player.addEventListener('loadeddata', () => {
+      if (player.requestFullscreen) player.requestFullscreen();
+      else if (player.webkitRequestFullscreen) player.webkitRequestFullscreen();
+      else if (player.msRequestFullscreen) player.msRequestFullscreen();
+    });
+  } else {
+    document.body.innerHTML = `
+      <p style="text-align:center;">
+        ❌ Không tìm thấy video.<br>
+        Vui lòng truy cập theo dạng:<br>
+        <code>?url=https://cdn.discordapp.com/.../video.mp4?ex=...</code>
+      </p>`;
+  }
+</script>
+
   </body>
 </html>
