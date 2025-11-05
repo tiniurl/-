@@ -1,42 +1,62 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="vi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>TiniURL — Trình rút gọn link tĩnh</title>
-  <style>
-    body {
-      font-family: system-ui, sans-serif;
-      text-align: center;
-      margin-top: 10vh;
-      color: #111;
-    }
-    .card {
-      display: inline-block;
-      padding: 1.5rem;
-      border-radius: 12px;
-      background: white;
-      box-shadow: 0 6px 18px rgba(0,0,0,.08);
-      max-width: 600px;
-    }
-    code {
-      background: #eee;
-      padding: .2rem .4rem;
-      border-radius: 6px;
-    }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <h1>🌐 TiniURL</h1>
-    <p>Rút gọn link tĩnh, chạy hoàn toàn trên GitHub Pages.</p>
-    <p>Ví dụ:</p>
-    <ul style="text-align:left">
-      <li><code>/yt</code> → YouTube</li>
-      <li><code>/law178</code> → VBPL link</li>
-      <li><code>/chat</code> → ChatGPT</li>
-    </ul>
-    <p><a href="/-/yt">Thử /yt</a></p>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <title>Trình phát video</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body {
+        margin: 0;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      video {
+        max-width: 90%;
+        max-height: 90%;
+        background: #000;
+      }
+      .error {
+        color: #fff;
+        font-family: sans-serif;
+        text-align: center;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+
+    <script>
+      // Lấy tham số "url" từ query string
+      const params = new URLSearchParams(window.location.search);
+      const videoUrl = params.get("url");
+
+      const container = document.getElementById("container");
+
+      if (videoUrl) {
+        // Tạo phần tử video và chèn vào trang
+        const video = document.createElement("video");
+        video.src = videoUrl;
+        video.controls = true;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = true; // Giúp autoplay hoạt động trên mobile
+        container.appendChild(video);
+      } else {
+        // Nếu không có URL hợp lệ, hiển thị hướng dẫn
+        container.innerHTML = `
+          <div class="error">
+            <h2>⚠️ Không có video để phát</h2>
+            <p>Hãy thêm tham số <code>?url=LINK_VIDEO</code> vào địa chỉ.</p>
+            <p>Ví dụ:<br>
+              <code>https://tiniurl.github.io/-/?url=https://cdn.discordapp.com/attachments/.../video.mp4</code>
+            </p>
+          </div>
+        `;
+      }
+    </script>
+  </body>
 </html>
