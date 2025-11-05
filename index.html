@@ -32,35 +32,26 @@
     <script>
       const container = document.getElementById("container");
 
-      // Lấy toàn bộ URL (bao gồm query string)
-      const fullUrl = window.location.href;
+      // Lấy URL video từ query ?url=
+      const params = new URLSearchParams(window.location.search);
+      const videoUrl = params.get("url");
 
-      // Xác định phần sau "/-/"
-      const prefix = "/-/";
-      const idx = fullUrl.indexOf(prefix);
-
-      let videoUrl = "";
-      if (idx !== -1) {
-        // Lấy mọi thứ sau "/-/"
-        videoUrl = decodeURIComponent(fullUrl.slice(idx + prefix.length));
-      }
-
-      // Nếu có URL video hợp lệ
-      if (videoUrl.startsWith("http")) {
+      if (videoUrl && videoUrl.startsWith("http")) {
         const video = document.createElement("video");
         video.src = videoUrl;
         video.controls = true;
         video.autoplay = true;
         video.playsInline = true;
-        video.muted = true;
+        video.muted = false; // có thể bật âm thanh nếu muốn
+        video.preload = "auto"; // tải toàn bộ video để đạt chất lượng cao nhất
         container.appendChild(video);
       } else {
         container.innerHTML = `
           <div class="error">
             <h2>⚠️ Không có video để phát</h2>
-            <p>Hãy thêm đường dẫn video đầy đủ sau <code>/-/</code>.</p>
+            <p>Hãy thêm tham số <code>?url=LINK_VIDEO</code> vào địa chỉ trang.</p>
             <p>Ví dụ:<br>
-              <code>https://tiniurl.github.io/-/https://cdn.discordapp.com/attachments/1435686909253910551/1435686993886711848/video4920191771247379820.mp4?ex=690cdf35&is=690b8db5&hm=cd5e8cd8dcfc7876151bfdb2122531509f744dabeee1a8fa2c6da3cfadb9a2c7&</code>
+              <code>https://tiniurl.github.io/-/?url=https://cdn.discordapp.com/attachments/1435686909253910551/1435686993886711848/video4920191771247379820.mp4?ex=690cdf35&is=690b8db5&hm=cd5e8cd8dcfc7876151bfdb2122531509f744dabeee1a8fa2c6da3cfadb9a2c7&</code>
             </p>
           </div>
         `;
